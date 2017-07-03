@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
     if (argc < 3) {
         std::cout << "Usage:" << std::endl;
         std::cout << argv[0] << " openmvg.json cam_positions.txt" << std::endl;
+        std::cout << "cam_positions.txt format: index cam_x cam_y cam_z lookat_x lookat_y lookat_z" << std::endl;
         return 1;
     }
 
@@ -39,11 +40,8 @@ int main(int argc, char **argv) {
 
     while(!cin.eof()) {
         cin >> camIndex >> camPos.x >> camPos.y >> camPos.z >> lookat.x >> lookat.y >> lookat.z ;
-        std::cout << camIndex << " " << camPos.x << " " << camPos.y << " " << camPos.z << std::endl;
-        std::cout << "lookat: " << lookat.x << " " << lookat.y << " " << lookat.z << std::endl;
 
         glm::vec3 angles = computeAngles(camPos, lookat);
-        // std::cout << angles.x << " " << angles.y << " " << angles.z << std::endl;
         glm::mat3 rotation = getRotationMatrix(angles.x, angles.y, angles.z);
 
         parser.setCamPosition(camIndex, camPos, rotation);
