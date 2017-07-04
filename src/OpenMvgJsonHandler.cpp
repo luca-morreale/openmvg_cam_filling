@@ -1,34 +1,28 @@
-/*
- * OpenMvgParser.cpp
- *
- *    Created on: 16 mar 2016
- *            Author: andrea
- */
-#include <OpenMvgParser.h>
+#include <OpenMvgJsonHandler.hpp>
 
 namespace jsonfill {
 
-    OpenMvgParser::OpenMvgParser(std::string path) {
+    OpenMvgJsonHandler::OpenMvgJsonHandler(std::string path) {
         setFile(path);
     }
 
-    OpenMvgParser::~OpenMvgParser() {
+    OpenMvgJsonHandler::~OpenMvgJsonHandler() {
         cin.close();
     }
 
-    void OpenMvgParser::setFile(std::string path)
+    void OpenMvgJsonHandler::setFile(std::string path)
     {
         fileName = path;
         cin.open(path.c_str());
     }
 
-    void OpenMvgParser::parse(std::string path)
+    void OpenMvgJsonHandler::parse(std::string path)
     {
         setFile(path);
         parse();
     }
     
-    void OpenMvgParser::parse() {
+    void OpenMvgJsonHandler::parse() {
 
         JsonFINWrapper isw(cin);
         document.ParseStream(isw);
@@ -44,14 +38,14 @@ namespace jsonfill {
         checkPoints();
     }
 
-    void OpenMvgParser::checkViews()
+    void OpenMvgJsonHandler::checkViews()
     {
         if (!document.HasMember("views")) {
             throw JsonAccessException("JsonAccessException--> error while querying HasMember(views)");
         }
     }
 
-    void OpenMvgParser::checkPoints()
+    void OpenMvgJsonHandler::checkPoints()
     {
         if (!document.HasMember("structure")) {
             throw JsonAccessException("JsonAccessException--> error while querying HasMember(structure)");
@@ -110,21 +104,21 @@ namespace jsonfill {
         }
     }
 
-    void OpenMvgParser::checkIntrinsics()
+    void OpenMvgJsonHandler::checkIntrinsics()
     {
         if (!document.HasMember("intrinsics")) {
             throw JsonAccessException("JsonAccessException--> error while querying HasMember(views)");
         }
     }
 
-    void OpenMvgParser::checkExtrinsics()
+    void OpenMvgJsonHandler::checkExtrinsics()
     {
         if (!document.HasMember("extrinsics")) {
             throw JsonAccessException("JsonAccessException--> error while querying HasMember(extrinsics)");
         }
     }
 
-    void OpenMvgParser::checkCameraExistence(int camIndex)
+    void OpenMvgJsonHandler::checkCameraExistence(int camIndex)
     {
         if (!document.HasMember("extrinsics")) {
             throw JsonAccessException("JsonAccessException--> error while querying HasMember(extrinsics)");
@@ -132,39 +126,57 @@ namespace jsonfill {
         getCameraRef(camIndex);
     }
 
-    void OpenMvgParser::addFieldToDocuemnt(std::string name, JsonValue &content)
+    void OpenMvgJsonHandler::addFieldToDocuemnt(std::string name, JsonValue &content)
     {
         JsonValue key(name.c_str(), document.GetAllocator());
         document.AddMember(key, content, document.GetAllocator());
     }
 
-    void OpenMvgParser::addFieldTo(JsonValue &parent, std::string name, JsonValue &content)
+    void OpenMvgJsonHandler::addFieldTo(JsonValue &parent, std::string name, JsonValue &content)
     {
-        JsonValue(name.c_str(), document.GetAllocator());
         parent.AddMember(JsonValue(name.c_str(), document.GetAllocator()).Move(), content, document.GetAllocator());
     }
 
-    void OpenMvgParser::pushBackTo(JsonValue &array, JsonValue &content)
+    void OpenMvgJsonHandler::addFieldTo(JsonValue &parent, std::string name, std::string content)
+    {
+        parent.AddMember(JsonValue(name.c_str(), document.GetAllocator()).Move(), 
+            JsonValue(content.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+    }
+
+    void OpenMvgJsonHandler::addFieldTo(JsonValue &parent, std::string name, int content)
+    {
+        parent.AddMember(JsonValue(name.c_str(), document.GetAllocator()).Move(), content, document.GetAllocator());
+    }
+
+    void OpenMvgJsonHandler::addFieldTo(JsonValue &parent, std::string name, size_t content)
+    {
+        parent.AddMember(JsonValue(name.c_str(), document.GetAllocator()).Move(), content, document.GetAllocator());
+    }
+
+    void OpenMvgJsonHandler::addFieldTo(JsonValue &parent, std::string name, double content)
+    {
+        parent.AddMember(JsonValue(name.c_str(), document.GetAllocator()).Move(), content, document.GetAllocator());
+    }
+
+    void OpenMvgJsonHandler::pushBackTo(JsonValue &array, JsonValue &content)
     {
         array.PushBack(content, document.GetAllocator());
     }
 
-    void OpenMvgParser::pushBackTo(JsonValue &array, double value, int n)
+    void OpenMvgJsonHandler::pushBackTo(JsonValue &array, double value, int n)
     {
         for (size_t i = 0; i < n; i++) {
             array.PushBack(value, document.GetAllocator());
         }
     }
 
-    void OpenMvgParser::addExtrinsicMember()
+    void OpenMvgJsonHandler::addExtrinsicMember()
     {
         JsonValue extrinsics(JsonArray);
         addFieldToDocuemnt("extrinsics", extrinsics);
-    }
+    }    
 
-    
-
-    void OpenMvgParser::addCameraToExtrinsic(int camIndex)
+    void OpenMvgJsonHandler::addCameraToExtrinsic(int camIndex)
     {
         JsonValue camera(JsonObject);
         JsonValue key(JsonNumber);
@@ -194,7 +206,7 @@ namespace jsonfill {
         document["extrinsics"].PushBack(camera, document.GetAllocator());
     }
 
-    int OpenMvgParser::getCameraRef(int camIndex)
+    int OpenMvgJsonHandler::getCameraRef(int camIndex)
     {
         const JsonValue& extrinsicsValue = document["extrinsics"];
         for (JsonSizeT curInt = 0; curInt < extrinsicsValue.Size(); curInt++) {
@@ -206,7 +218,7 @@ namespace jsonfill {
         throw CameraNotPresentException("Camera n° " + std::to_string(camIndex) + " not contained in the json file."); 
     }
 
-    void OpenMvgParser::setCamPosition(int camIndex, GLMVec3 &camCenter, GLMMat3 rotation)  // cam index = image index
+    void OpenMvgJsonHandler::setCamPosition(int camIndex, GLMVec3 &camCenter, GLMMat3 rotation)  // cam index = image index
     {
         try {
             checkCameraExistence(camIndex);         // all okay
@@ -229,7 +241,7 @@ namespace jsonfill {
         }
     }
 
-    GLMVec3 OpenMvgParser::getCamPosition(int camIndex)
+    GLMVec3 OpenMvgJsonHandler::getCamPosition(int camIndex)
     {
         checkCameraExistence(camIndex);     // if right cam does not exits it dies due to exception
 
@@ -243,14 +255,48 @@ namespace jsonfill {
         return C;
     }
 
-    bool OpenMvgParser::testCamPosition(int camIndex, GLMVec3 &camCenter)
+    bool OpenMvgJsonHandler::testCamPosition(int camIndex, GLMVec3 &camCenter)
     {
         GLMVec3 pos = getCamPosition(camIndex);
 
         return camCenter.x == pos.x && camCenter.y == pos.y && camCenter.z == pos.z;
     }
 
-    void OpenMvgParser::saveChanges(std::string newFilename)
+    int OpenMvgJsonHandler::countImages()
+    {
+        return document["views"].Size();
+    }
+
+    void OpenMvgJsonHandler::appendImage(std::string &imagePath, std::string &imageName)
+    {
+        const JsonValue &sampleElement = document["views"][countImages() - 1];
+
+        JsonValue image(JsonObject);
+        JsonValue value(JsonObject);
+        JsonValue wrapper(JsonObject);
+        JsonValue data(JsonObject);
+
+        addFieldTo(data, "local_path", "");             // FIXME
+        addFieldTo(data, "filename", imageName);
+        addFieldTo(data, "width", sampleElement["value"]["ptr_wrapper"]["data"]["width"].GetInt());
+        addFieldTo(data, "height", sampleElement["value"]["ptr_wrapper"]["data"]["height"].GetInt());
+        addFieldTo(data, "id_view", sampleElement["value"]["ptr_wrapper"]["data"]["id_view"].GetInt() + 1);
+        addFieldTo(data, "id_intrinsic", sampleElement["value"]["ptr_wrapper"]["data"]["id_intrinsic"].GetInt());
+        addFieldTo(data, "id_pose", sampleElement["value"]["ptr_wrapper"]["data"]["id_pose"].GetInt() + 1);
+
+        addFieldTo(wrapper, "id", (size_t)sampleElement["value"]["ptr_wrapper"]["id"].GetUint() + 1);
+        addFieldTo(wrapper, "data", data);
+
+        addFieldTo(value, "polymorphic_id", (size_t)sampleElement["value"]["polymorphic_id"].GetUint());
+        addFieldTo(value, "ptr_wrapper", wrapper);
+
+        addFieldTo(image, "key", countImages());
+        addFieldTo(image, "value", value);
+
+        document["views"].PushBack(image, document.GetAllocator());
+    }
+
+    void OpenMvgJsonHandler::saveChanges(std::string newFilename)
     {
         std::ofstream cout(newFilename);
         JsonFOUTWrapper osw(cout);

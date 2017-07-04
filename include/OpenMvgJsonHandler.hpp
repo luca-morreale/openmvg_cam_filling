@@ -1,10 +1,3 @@
-/*
- * OpenMvgParser.h
- *
- *  Created on: 16 mar 2016
- *      Author: andrea
- */
-
 #ifndef JSON_CAM_FILLING_OPENMVG_PARSER_H_
 #define JSON_CAM_FILLING_OPENMVG_PARSER_H_
 
@@ -16,16 +9,22 @@
 
 namespace jsonfill {
 
-    class OpenMvgParser {
+    class OpenMvgJsonHandler {
     public:
-        OpenMvgParser(std::string path);
-        virtual ~OpenMvgParser();
+        OpenMvgJsonHandler(std::string path);
+        virtual ~OpenMvgJsonHandler();
         virtual void parse(std::string path);
         virtual void parse();
-        virtual void saveChanges(std::string newFilename);
+
+        virtual int countImages();
+        virtual void appendImage(std::string &imagePath, std::string &imageFile);
+
+
         virtual void setCamPosition(int camIndex, GLMVec3 &camCenter, GLMMat3 rotation=GLMMat3());  // cam index = image index
         virtual GLMVec3 getCamPosition(int camIndex);
         virtual bool testCamPosition(int camIndex, GLMVec3 &camCenter);
+
+        virtual void saveChanges(std::string newFilename);
 
         void setFile(std::string path);
 
@@ -40,6 +39,10 @@ namespace jsonfill {
 
         void addFieldToDocuemnt(std::string name, JsonValue &content);
         void addFieldTo(JsonValue &parent, std::string name, JsonValue &content);
+        void addFieldTo(JsonValue &parent, std::string name, std::string content);
+        void addFieldTo(JsonValue &parent, std::string name, int content);
+        void addFieldTo(JsonValue &parent, std::string name, size_t content);
+        void addFieldTo(JsonValue &parent, std::string name, double content);
         void addExtrinsicMember();
         void pushBackTo(JsonValue &array, JsonValue &content);
         void pushBackTo(JsonValue &array, double value, int n);
