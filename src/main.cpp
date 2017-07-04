@@ -3,9 +3,8 @@
 #include <iostream>
 #include <fstream>
 
-#include <OpenMvgParser.h>
+#include <OpenMvgJsonHandler.hpp>
 
-#include <rapidjson/document.h>
 
 glm::vec3 computeAngles(glm::vec3 &p, glm::vec3 &la);
 glm::mat3 getRotationMatrix(float roll, float pitch, float yaw);
@@ -27,7 +26,7 @@ int main(int argc, char **argv) {
 
     std::ifstream cin(camPosFile);
 
-    jsonfill::OpenMvgParser parser(jsonFile);
+    jsonfill::OpenMvgJsonHandler parser(jsonFile);
     parser.parse();
 
     int camIndex;
@@ -48,7 +47,9 @@ int main(int argc, char **argv) {
     }
     cin.close();
 
-    std::cout << "closing\n";
+    std::string path = "";
+    std::string file = "test_img.png";
+    parser.appendImage(path, file);
 
     parser.saveChanges(outFile);
 
