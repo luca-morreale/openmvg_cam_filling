@@ -26,7 +26,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive")
 
 file(GLOB_RECURSE main_SOURCE )
 
-add_executable(jsonfill src/main.cpp src/OpenMvgParser.cpp)
+add_executable(jsonfill src/main.cpp src/OpenMvgJsonHandler.cpp)
 
 target_link_libraries(jsonfill ${GMPXX_LIBRARIES}
                                             ${GMP_LIBRARIES}
