@@ -4,6 +4,7 @@ namespace jsonfill {
 
     OpenMvgJsonHandler::OpenMvgJsonHandler(std::string path) {
         setFile(path);
+        parse();
     }
 
     OpenMvgJsonHandler::~OpenMvgJsonHandler() {
@@ -14,6 +15,7 @@ namespace jsonfill {
     {
         fileName = path;
         cin.open(path.c_str());
+        parse();
     }
 
     void OpenMvgJsonHandler::parse(std::string path)
