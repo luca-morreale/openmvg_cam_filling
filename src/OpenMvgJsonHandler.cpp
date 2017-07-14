@@ -21,7 +21,6 @@ namespace jsonfill {
     void OpenMvgJsonHandler::parse(std::string path)
     {
         setFile(path);
-        parse();
     }
     
     void OpenMvgJsonHandler::parse() {
